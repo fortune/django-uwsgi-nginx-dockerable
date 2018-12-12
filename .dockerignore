@@ -1,0 +1,9 @@
+.vscode
+.gitignore
+.dockerignore
+
+.venv
+
+# ベースとなる settings を除き、各環境の settings は Docker イメージには含めないようにする。
+project/settings/*
+!project/settings/base.py

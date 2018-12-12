@@ -1,0 +1,17 @@
+version: '2'
+  
+# build 定義のみおこなう。
+
+services:
+  web:
+    # このサービスはソースからイメージを作成するので、
+    # イメージ名と、build の際のビルドコンテキストと Dockerfile を指定している。
+    # dockerfile は、ビルドコンテキストからのパスを指定する。
+    #
+    image: django-dockerable-sample-2:1.0
+    build:
+      context: ../
+      dockerfile: dockerable/Dockerfile
+
+  # このファイルではビルドだけを定義する。環境ごとに実行の仕方が異なる可能性があるので、
+  # 実行方法についての設定は、環境ごとに yaml ファイルを作る。

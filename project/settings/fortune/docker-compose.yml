@@ -1,0 +1,37 @@
+version: '2'
+
+
+services:
+  web:
+    # このサービスはソースからイメージを作成するので、
+    # イメージ名と、build の際のビルドコンテキストと Dockerfile を指定している。
+    # dockerfile は、ビルドコンテキストからのパスを指定する。
+    #
+    image: django-dockerable-sample-2:1.0
+
+    # build 設定はここには書かない。
+    # build:
+
+    ports:
+      - "80:80"
+    environment:
+      DJANGO_SETTINGS_MODULE: project.settings.fortune.settings
+      UWSGI_PROCESSES: 4
+    volumes:
+      - ./:/app/project/settings/fortune:ro
+    links:
+      - postgres
+
+  # このサービスに link してくるコンテナ内では、このサービス名をホスト名として使わなくてはならない。
+  postgres:
+    # Official が提供しているイメージをそのまま使うので、build の必要はない。
+    image: postgres:10.5-alpine
+
+    ports:
+      # コンテナから link するだけならホストのポートとつなげる必要はないのだが、Django をコンテナ上で動かさない場合でも
+      # ここに接続できるようにするためホストのポートとつなげる。
+      - "5432:5432"
+    environment:
+      # DB 名とパスワードを環境変数で設定する。ユーザ名は、デフォルトの postgres が使われる。
+      POSTGRES_PASSWORD: "my_password"
+      POSTGRES_DB: "my_db"
