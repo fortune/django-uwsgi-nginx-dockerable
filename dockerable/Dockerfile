@@ -14,7 +14,8 @@ RUN apt-get update && \
 	python3-setuptools \
 	python3-pip \
 	nginx \
-	supervisor && \
+	supervisor \
+	gettext-base && \
 	pip3 install -U pip setuptools && \
     rm -rf /var/lib/apt/lists/*
 
@@ -27,7 +28,7 @@ RUN pip3 install uwsgi
 # uwsgi はそのまま起動すればフォアグラウンドなので問題ない。
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 COPY dockerable/supervisor-app.conf /etc/supervisor/conf.d/
-COPY dockerable/nginx-app.conf /etc/nginx/sites-available/default
+# COPY dockerable/nginx-app.conf /etc/nginx/sites-available/default
 
 # COPY requirements.txt and RUN pip install BEFORE adding the rest of your code, this will cause Docker's caching mechanism
 # to prevent re-installing (all your) dependencies when you made a change a line or two in your app.

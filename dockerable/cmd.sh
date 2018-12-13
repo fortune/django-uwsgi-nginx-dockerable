@@ -13,6 +13,14 @@ if [ "$DJANGO_SETTINGS_MODULE" = "" ]; then
     exit 1
 fi
 
+if [ "$NGINX_SERVER_NAME" = "" ]; then
+    echo "Environment variable \"NGINX_SERVER_NAME\" is required."
+    exit 1
+fi
+
+# テンプレートから Nginx の設定ファイルを生成
+envsubst < /app/dockerable/nginx-app.conf > /etc/nginx/sites-available/default
+
 # UWSGI の worker プロセス数のデフォルト値をセット
 if [ "$UWSGI_PROCESSES" = ""]; then
     export UWSGI_PROCESSES=2

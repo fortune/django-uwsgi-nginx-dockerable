@@ -32,7 +32,7 @@ $ tree
 │   ├── Dockerfile
 │   ├── cmd.sh          # コンテナ起動スクリプト
 │   ├── docker-compose-build-only.yml   # コンテナイメージビルド用の docker-compose.yml
-│   ├── nginx-app.conf          # Nginx の設定ファイル
+│   ├── nginx-app.conf          # Nginx の設定ファイルのテンプレート
 │   ├── supervisor-app.conf     # supervisor の設定ファイル
 │   ├── uwsgi.ini               # uwsgi の設定ファイル
 │   └── uwsgi_params
@@ -55,8 +55,9 @@ $ tree
 Dockerfile で、このツリー全体がコンテナ上の */app/* にコピーしているが、仮想環境や、個別設定 *project/settings/fortune* 等は除くように
 `.dockerignore` を定義している。
 
-`dockerable/` 内の `nginx-app.conf`, `supervisor-app.conf` ファイルは、各々コンテナ内の
-Nginx, Supervisor のための適切な場所にコピーするように Dockerfile に記述している。
+`dockerable/` 内の `supervisor-app.conf` ファイルは、コンテナ内の Supervisor のための適切な場所にコピーするように Dockerfile に記述している。
+
+`dockerable/` 内の `nginx-app.conf` ファイルをテンプレートとして、コンテナ実行時に Nginx 設定ファイルを生成するように `cmd.sh` に記述してある。
 
 
 ## ビルド方法
@@ -103,15 +104,13 @@ $ docker-compose -f project/settgings/fortune/docker-compose.yml up -d
 *UWSGI_PROCESSES* という環境変数で指定するようにしている。*uwsgi.ini* 内でこの環境変数を使用している。設定項目を増やしたければ、同じように
 *docker-compose.yml* 内で環境変数をセットし、*uwsgi.ini* 内で使用するようにする。
 
-コンテナ上で実行される Nginx の環境ごとの設定はいまのところサポートしておらず、*nginx-app.conf* のデフォルト設定のままだ。環境ごとに設定値を
-変えたい場合、uwsgi と違って、環境変数を conf ファイル内で参照できないため少し面倒になる。
+Nginx の設定ファイルは環境変数を内部で参照することはできないので、[envsubst コマンド](http://manpages.ubuntu.com/manpages/bionic/man1/envsubst.1.html)
+を使用してコンテナ起動時にテンプレートから設定ファイルを
+生成するようにしている。この例では *NGINX_SERVER_NAME* という環境変数を設定値として使っている。
 
-*cmd.sh* で環境変数をチェックし、デフォルト値等をセットして、*supervisord* プロセスを起動する。フォアグラウンドで起動するようにしてあるので、
-Docker コンテナが起動後すぐに終了してしまうということはない。
+*cmd.sh* で環境変数をチェックし、デフォルト値のセットや、テンプレートからの設定ファイル生成をした後で、*supervisord* プロセスを起動する。
+フォアグラウンドで起動するようにしてあるので、Docker コンテナが起動後すぐに終了してしまうということはない。
 
-Nginx の設定値をコンテナ起動時に指定できるようにするには、*docker-compose.yml* 内でそのための環境変数をセットし、*cmd.sh* で
-*/etc/nginx/sites-available/default* ファイルを sed 等を使って書き換えるようにしてやればよい。*/etc/nginx/sites-available/default* は
-*nginx-app.conf* をコピーしたもの（Dockerfile 内でやってる）。
 
 
 

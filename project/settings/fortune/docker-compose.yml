@@ -17,6 +17,7 @@ services:
     environment:
       DJANGO_SETTINGS_MODULE: project.settings.fortune.settings
       UWSGI_PROCESSES: 4
+      NGINX_SERVER_NAME: fortunefield.com
     volumes:
       - ./:/app/project/settings/fortune:ro
     links:
