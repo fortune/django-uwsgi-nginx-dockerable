@@ -179,7 +179,7 @@ supervisor のログは、コンテナ内の `/var/log/supervisor/` ディレク
 次のようにする。
 
 ```shell
-$ docker exec -it {コンテナ名} certbot certonly --webroot -w /var/www/html -d {ドメイン名}
+$ docker exec -it {コンテナ名} certbot certonly --webroot -w /var/www/html -d {ドメイン名} --force-renewal
 ```
 
 *{コンテナ名}* は HTTPS 対応で実行したコンテナの名称、*{ドメイン名}* は `docker-compose-ssl.yml` 内で設定した環境変数 *NGINX_SERVER_NAME* と
