@@ -14,12 +14,16 @@ services:
 
     ports:
       - "80:80"
+      - "443:443"
     environment:
       DJANGO_SETTINGS_MODULE: project.settings.fortune.settings
       UWSGI_PROCESSES: 4
       NGINX_SERVER_NAME: dockerable-django.fortunefield.com
+      USE_SSL: "ON"
+      EMAIL_ADDRESS: fortunefield@gmail.com
     volumes:
       - ./:/app/project/settings/fortune:ro
+      - ./letsencrypt:/etc/letsencrypt
     links:
       - postgres
 

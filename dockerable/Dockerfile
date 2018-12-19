@@ -4,10 +4,16 @@ MAINTAINER fortune
 
 # Install required packages and remove the apt packages cache when done.
 
+# この設定により、ビルドされた Docker イメージを起動したときのタイムゾーンが適切に設定される。
+# また、Docker ビルド中に tzdata の Configuring のための入力を求められ、途中で停止してしまうことが避けられる。
+ENV TZ="Asia/Tokyo"
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # 新しい apt コマンドはスクリプトでは使いづらいようだ（-y オプションがない）。
 RUN apt-get update && \
     apt-get upgrade -y && \ 	
     apt-get install -y \
+	certbot \
 	git \
 	python3 \
 	python3-dev \
