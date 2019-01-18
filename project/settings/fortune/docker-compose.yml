@@ -7,7 +7,7 @@ services:
     # イメージ名と、build の際のビルドコンテキストと Dockerfile を指定している。
     # dockerfile は、ビルドコンテキストからのパスを指定する。
     #
-    image: django-dockerable-sample-2:1.0
+    image: django-dockerable-sample-2:2.0
 
     # build 設定はここには書かない。
     # build:
@@ -22,6 +22,11 @@ services:
       - ./:/app/project/settings/fortune:ro
     links:
       - postgres
+    
+    logging:
+      driver: syslog
+      options:
+        tag: "django-web"
 
   # このサービスに link してくるコンテナ内では、このサービス名をホスト名として使わなくてはならない。
   postgres:
@@ -36,3 +41,8 @@ services:
       # DB 名とパスワードを環境変数で設定する。ユーザ名は、デフォルトの postgres が使われる。
       POSTGRES_PASSWORD: "my_password"
       POSTGRES_DB: "my_db"
+
+    logging:
+      driver: syslog
+      options:
+        tag: "postgresql"

@@ -163,14 +163,29 @@ HTTPS 接続も受け付けるようにしたいなら、`project/settings/stagi
 
 ## ロギング
 
-ログの設定は特にしていない。
+supervisord, nginx, uwsgi すべて、ファイルにログを出力せずに Docker コンテナの標準出力、エラー出力にログ出力し、最終的なロギングは
+Docker エンジンにまかせることにする。そのため、次のようにする。
 
-Nginx のログファイルはデフォルトの設定のままで、コンテナ内の `/var/log/nginx/` ディレクトリに作成されている。
+nginx は `nginx-app.conf`, `nginx-app-ssl.conf` に
+
+```shell
+access_log /dev/stdout;
+error_log /dev/stderr;
+```
+
+を記述してデフォルトの設定を上書きし、標準出力、エラー出力にログするようにした。
 
 uWSGI は、フォアグラウンドで実行され、*uwsgi.ini* でログの指定もしていないので、標準（エラー）出力にはログメッセージが出力される。
 
-supervisor のログは、コンテナ内の `/var/log/supervisor/` ディレクトリに作成されている。管理下にある uwsgi が標準出力に吐いたメッセージを保存した
-ログファイルもここに作成されている。
+supervisor は、`supervisor-app.conf` にあるとおりに設定しした。これにより、
+supervisor プロセスは、サブプロセスである nginx, uwsgi からの標準出力、エラー出力を
+ログファイルに保存せずにコンテナの標準出力、エラー出力にはきだす。さらに自分自身のログも
+ファイルに保存せず、捨てている。フォアグラウンドで稼働しているので、コンテナの標準出力に
+出力されるので問題ない。結局、supervisor はログファイルを作成しなくなるので、`/var/log/supervisor/` ディレクトリは空になる。
+
+
+`docker-compose.yml`, `docker-compose-ssl.yml` に Docker の logging-driver とオプションを指定した。
+syslog をドライバにしたので、ホストの Syslog の設定にしたがって、ホスト上でロギングされる。
 
 
 ## SSL 証明書自動更新
@@ -197,5 +212,7 @@ systemd timer にセットする。
 
 ## 課題
 
-ロギングは Docker での運用に合うように集約なり何なりをする必要がある。
+１つのコンテナで supervisor, nginx, uwsgi を動かしているので、コンテナの標準出力に出力したログが混じり合うことはないが、
+混在してしまい、互いに区別しにくいので分析しにくい。いろいろ調べたが、いい方法はなさそうだ。なので、やはり、nginx と uwsgi（+ Django）の
+２つは別々の Docker コンテナで動かした方がよさそうだ。そうすれば、ログを分けるのが簡単になる。
 

@@ -8,7 +8,7 @@ services:
     # イメージ名と、build の際のビルドコンテキストと Dockerfile を指定している。
     # dockerfile は、ビルドコンテキストからのパスを指定する。
     #
-    image: django-dockerable-sample-2:1.0
+    image: django-dockerable-sample-2:2.0
     build:
       context: ../
       dockerfile: dockerable/Dockerfile

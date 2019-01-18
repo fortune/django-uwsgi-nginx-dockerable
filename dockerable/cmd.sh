@@ -69,5 +69,5 @@ else
 
 fi
 
-exec supervisord -n
+exec supervisord
 
